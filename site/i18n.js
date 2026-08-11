@@ -5,52 +5,52 @@
 
 export const STRINGS = {
   en: {
-    "meta.title": "slotting · the picker walks one route, not many",
+    "meta.title": "slotting · a picker walks one route, not many",
     "nav.source": "Source",
     "nav.portfolio": "Portfolio",
     "nav.linkedin": "LinkedIn",
     "nav.lang": "Deutsch",
 
-    "hero.kicker": "Python 3.10+ · zero dependencies · a warehouse floor",
-    "hero.title": "Put the popular items at the front.<br>It is the wrong <em>answer</em>.",
+    "hero.kicker": "Python 3.10+ · no dependencies · reads a CSV export",
+    "hero.title": "Fast movers at the front.<br>That is not what shortens the <em>walk</em>.",
     "hero.lede":
-      "Nobody walks to one item and comes back. They walk a single route through a whole pick list. So what you pay is route length per order, and that is not the sum of the distances. Two items always ordered together belong side by side, even when neither is popular.",
+      "A picker does not fetch one item and come back. They walk a single route through the whole list and return to the dock. So you pay for that route, not for the distance to each item. Two products that always ship together belong side by side, even when neither sells well.",
     "hero.cta": "Read the code",
 
     "route.eyebrow": "One route, not many",
-    "route.title": "Move one item, and the walk gets shorter",
+    "route.title": "Move one item and the whole walk gets shorter",
     "route.lede":
-      "The same four items, on the same order, on two different floors. On the left they sit where pick frequency put them. On the right one of them has moved into the aisle the picker was already walking down.",
+      "The same four items, on the same order, in two different warehouses. On the left they sit where pick frequency put them. On the right, one of them has moved into an aisle the picker already had to walk down.",
     "route.play": "Walk the order",
     "route.byFrequency": "By pick frequency",
     "route.optimised": "Optimised",
     "route.caption":
-      "The item that moved is not popular. It simply keeps turning up on the same orders as items that are, and that is a fact frequency ranking cannot see.",
-    "route.noteTitle": "Why the second aisle is so expensive",
+      "The item that moved is not a fast mover. It just keeps appearing on the same orders as ones that are. Pick frequency is blind to that.",
+    "route.noteTitle": "Why the second aisle costs so much",
     "route.noteBody":
-      "Most warehouses pick in an S-shape: go into every aisle that holds something on the list, walk it end to end, move on. So the cost is set by how many aisles you enter, not by how many items you collect in each. Once the picker is in an aisle, everything else in it is nearly free. That is the whole reason co-locating pays.",
+      "Most warehouses pick in an S-shape. You enter every aisle holding something on the list, walk it end to end, then move on. The cost comes from how many aisles you enter, not from how much you pick in each. Once you are in an aisle, everything else in it is almost free. That is why putting related products together pays.",
 
     "heat.eyebrow": "The floor",
     "heat.title": "Where the walking actually happens",
     "heat.lede":
-      "Every cell is one storage location, darker where more picks land on it. The dock is the black bar at the bottom. Flip the switch and watch the heat pull in towards it.",
+      "Each cell is one storage location, and the darker it is, the more picks it takes. The dock is the black bar at the bottom. Flip the switch and watch the heat move towards it.",
     "heat.switch": "Show the optimised floor",
     "heat.cold": "quiet",
     "heat.hot": "busy",
     "heat.caption":
-      "Both floors are drawn on one shared colour scale. Given its own scale each picture would look equally hot, which would make the comparison look like a result while proving nothing.",
+      "Both floors use one shared colour scale. If each had its own, they would look equally busy. The comparison would then prove nothing while looking like a result.",
 
     "limits.eyebrow": "What it will not tell you",
-    "limits.title": "Three things stated up front",
-    "limits.c1t": "It never claims an optimum",
+    "limits.title": "Three things worth saying up front",
+    "limits.c1t": "It never claims to be optimal",
     "limits.c1b":
-      "Slotting is a quadratic assignment problem and it is NP-hard. The tool returns a better arrangement and says how much better. It also says whether the search finished or simply ran out of passes, because those are different answers.",
+      "Slotting is a quadratic assignment problem, which is NP-hard. The tool gives you a better layout and tells you how much better. It also tells you whether the search finished or just ran out of passes. Those are different answers.",
     "limits.c2t": "Seven percent is a real number",
     "limits.c2b":
-      "Published slotting work lands somewhere between five and twenty percent, depending on how badly the warehouse started. Anything advertising fifty is measuring against a random arrangement nobody actually has.",
+      "Published studies report between five and twenty percent. It depends on how bad the layout was to begin with. Anything promising fifty is measuring against a random layout, and no real warehouse has one.",
     "limits.c3t": "Single-line orders cannot be helped",
     "limits.c3b":
-      "One item per order means nothing is ever picked alongside anything else, so there is no pairing to find and frequency ranking is already close to right. The tool says so and exits accordingly, rather than reporting noise as a saving.",
+      "One item per order means nothing is ever picked alongside anything else. There are no pairs to find, so ranking by frequency is already about right. The tool says so, and its exit code says it too.",
 
     "foot.by": "Built by Arsalan Khadim",
   },
