@@ -4,17 +4,16 @@
 
 Which SKU goes in which bin, so the picker walks less.
 
-Rank your SKUs by how often they are picked, put the popular ones nearest the
-dock. That is the standard answer and it is a good one. It is also solving the
-wrong problem.
+Rank your products by how often they are picked, then put the busiest ones
+nearest the dock. That is the standard advice, and it is not bad advice. It
+just aims at the wrong target.
 
-A picker does not walk to one item and come back. They walk **one route**
-through a whole pick list and return to the dock. So the cost is route length
-per order, not the sum of the distances to individual items. Those are
-different numbers, and they disagree in a way that matters: two SKUs that
-always appear on the same order belong near each other even when neither is
-individually popular. No amount of frequency ranking will ever find that,
-because frequency cannot see co-occurrence at all.
+A picker does not fetch one item and come back. They walk **one route** through
+the whole list and return to the dock. So you pay for that route, not for the
+distance to each item. Those are different numbers, and the difference matters.
+Two products that always appear on the same order belong near each other, even
+when neither one sells well. Ranking by frequency will never find that, because
+frequency cannot see which items travel together.
 
 This measures what a warehouse actually pays and searches against it.
 
@@ -89,17 +88,17 @@ wrong. There is a test that fails if this ever regresses.
 because it is what most warehouses actually run: enter every aisle holding a
 pick, sweep it, move on. Its cost depends on which aisles you touch and barely
 on how many items sit in each, which is precisely why co-locating related SKUs
-pays. `return` is the alternative. `optimal_route` exists too, by brute force,
-and nothing calls it except the tests, which use it to state how far the
-heuristics sit from the true floor rather than assuming they are close.
+pays. `return` is the alternative. `optimal_route` exists too, by brute force.
+Nothing calls it except the tests. They use it to say how far the heuristics
+sit from the true shortest walk, rather than assuming they are close.
 
 **The search scores the real objective.** Every candidate swap is evaluated by
 what it does to actual route length over actual orders, not by a proxy. Doing
 that naively would be far too slow, so swapping two SKUs only re-costs the
 orders that mention one of them. The running total is then thrown away and
-recomputed from scratch before reporting, because a bug in the delta
-bookkeeping would otherwise report a saving the assignment does not deliver,
-and that is the one failure this tool must not have.
+recomputed from scratch. A bug in that bookkeeping would otherwise report a
+saving the layout does not deliver. That is the one failure this tool must not
+have.
 
 ## Exit codes
 
@@ -115,9 +114,9 @@ warehouse look broken.
 
 ## Install
 
-Python 3.10 or newer. **No runtime dependencies**, on purpose: this runs on a
-warehouse server on a scheduled job, and every dependency is a reason it will
-not run there when it matters. The heatmap is SVG written as text rather than a
+Python 3.10 or newer. **No runtime dependencies**, on purpose. This runs as a
+scheduled job on a warehouse server. Every dependency is a reason it will not
+run there when it matters. The heatmap is SVG written as text rather than a
 plotting library.
 
 ```bash
