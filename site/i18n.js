@@ -12,7 +12,7 @@ export const STRINGS = {
     "nav.lang": "Deutsch",
 
     "hero.kicker": "Python 3.10+ · no dependencies · reads a CSV export",
-    "hero.title": "Fast movers at the front.<br>That is not what shortens the <em>walk</em>.",
+    "hero.title": "Fast movers at the front.<br>You still walk too <em>far</em>.",
     "hero.lede":
       "A picker does not fetch one item and come back. They walk a single route through the whole list and return to the dock. So you pay for that route, not for the distance to each item. Two products that always ship together belong side by side, even when neither sells well.",
     "hero.cta": "Read the code",
@@ -63,7 +63,7 @@ export const STRINGS = {
     "nav.lang": "English",
 
     "hero.kicker": "Python ab 3.10 · keine Abhängigkeiten · eine Lagerfläche",
-    "hero.title": "Die häufigen Artikel nach vorne.<br>Die falsche <em>Antwort</em>.",
+    "hero.title": "Die häufigen Artikel nach vorne.<br>Du läufst trotzdem zu <em>weit</em>.",
     "hero.lede":
       "Niemand läuft zu einem Artikel und wieder zurück. Gelaufen wird eine Tour über die ganze Pickliste. Bezahlt wird also die Tourlänge je Auftrag, und die ist nicht die Summe der Einzelwege. Zwei Artikel, die immer zusammen bestellt werden, gehören nebeneinander, auch wenn keiner von beiden häufig ist.",
     "hero.cta": "Zum Code",
