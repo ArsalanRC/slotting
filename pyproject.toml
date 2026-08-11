@@ -1,0 +1,68 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "slotting"
+version = "0.1.0"
+description = "Which SKU goes in which bin, so the picker walks less."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Arsalan Khadim" }]
+requires-python = ">=3.10"
+keywords = ["warehouse", "slotting", "logistics", "optimisation", "picking", "wms"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Typing :: Typed",
+]
+
+# No runtime dependencies. The optimiser is arithmetic over small integers and
+# the heatmap is SVG written as text, so numpy and a plotting library would buy
+# nothing and would put this package outside the places it needs to run: a
+# scheduled job on a warehouse server that nobody wants to touch.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+
+[project.scripts]
+slotting = "slotting.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/ArsalanRC/slotting"
+Source = "https://github.com/ArsalanRC/slotting"
+Issues = "https://github.com/ArsalanRC/slotting/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/slotting"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers --strict-config"
+
+[tool.ruff]
+src = ["src", "tests"]
+line-length = 96
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+  "E", "F", "W",   # pycodestyle, pyflakes
+  "I",             # import sorting
+  "UP",            # pyupgrade
+  "B",             # bugbear
+  "SIM",           # simplify
+  "RUF",           # ruff-specific
+]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["src", "tests"]
