@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.10 is the floor the package claims, so it is tested rather than
+        # assumed. 3.13 is the current release. Anything the matrix does not
+        # cover is not a support claim we are entitled to make.
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Format check
+        run: ruff format --check .
+
+      - name: Type-check
+        run: mypy
+
+      - name: Test
+        run: pytest
+
+      # The package advertises zero runtime dependencies, so that is checked
+      # rather than trusted. A fresh environment, an install without the dev
+      # extra, and a real run: if anything crept into an import path, this is
+      # where it surfaces instead of on somebody's warehouse server.
+      #
+      # Asserted with `pip show`, not by counting installed packages. Every
+      # virtualenv ships pip itself, so a count is never zero and the obvious
+      # version of this check fails on every run for a reason that has nothing
+      # to do with the package.
+      - name: No runtime dependencies
+        run: |
+          python -m venv /tmp/clean
+          /tmp/clean/bin/pip install --quiet .
+          /tmp/clean/bin/slotting --demo --aisles 4 --bays 8
+          /tmp/clean/bin/pip show slotting | grep -qE '^Requires: *$'
