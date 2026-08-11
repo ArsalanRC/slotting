@@ -1,0 +1,464 @@
+/* slotting: a warehouse floor, not a dashboard.
+   ---------------------------------------------------------------------------
+   The subject is a building somebody walks around in, so the page takes its
+   palette from the building rather than from the medium: sealed concrete, the
+   safety amber painted on the floor to mark a walkway, and the warm scale the
+   heatmap already uses for pick density.
+
+   Deliberately unlike its siblings. recon is ledger paper, pg-outbox is a
+   blueprint, integration-patterns is a signal diagram, chess-engine is an
+   instrument. This one is a floor plan seen from above, which is also the only
+   way anybody ever looks at a warehouse layout.
+
+   Low chroma except the amber, which is the one loud colour and is loud on a
+   real warehouse floor for exactly the same reason: it marks where you walk. */
+
+:root {
+  color-scheme: dark;
+
+  --ground:    #171613;
+  --surface:   #201E1A;
+  --surface-2: #292620;
+  --line:      #3A362E;
+  --text:      #E6E1D6;
+  --dim:       #8E887A;
+
+  --amber:  #D9A441;   /* the walkway, the route, the brand */
+  --warn:   #B8813F;   /* waiting, a caveat                 */
+  --bad:    #B2604C;   /* the cost being paid               */
+
+  --heat-0: #26231D;
+  --heat-1: #43382A;
+  --heat-2: #6B5335;
+  --heat-3: #99703C;
+  --heat-4: #C08B45;
+
+  --shadow: rgba(0, 0, 0, 0.45);
+
+  /* Glass. A translucent fill, a blur that keeps saturation so the floor grid
+     behind stays coloured rather than going flat, and a hairline of light on
+     the top edge. Opacity is the readability dial: below about 55% the body
+     copy starts fighting the grid drawn behind it. */
+  --glass:      color-mix(in srgb, var(--surface) 74%, transparent);
+  --glass-thin: color-mix(in srgb, var(--surface) 55%, transparent);
+  --glass-blur: saturate(180%) blur(20px);
+  --glass-edge: rgba(255, 255, 255, 0.06);
+
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --r: 5px;
+  --band: 62rem;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --ground:    #E9E6DF;
+  --surface:   #F5F3ED;
+  --surface-2: #DEDACF;
+  --line:      #C6C0B2;
+  --text:      #201E19;
+  --dim:       #635E53;
+
+  --amber:  #8A5E12;
+  --warn:   #6F4E1B;
+  --bad:    #8E3B2A;
+
+  --heat-0: #F2EFE7;
+  --heat-1: #E5D5B4;
+  --heat-2: #D3B481;
+  --heat-3: #BC8F55;
+  --heat-4: #9C6A38;
+
+  --shadow: rgba(60, 52, 36, 0.18);
+
+  --glass:      color-mix(in srgb, var(--surface) 70%, transparent);
+  --glass-thin: color-mix(in srgb, var(--surface) 52%, transparent);
+  --glass-edge: rgba(255, 255, 255, 0.6);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+
+/* The field the glass blurs.
+
+   A blur over a flat colour returns the flat colour, so the panels need
+   something behind them. Here it is the floor itself: a 32px bay grid, plus a
+   pool of amber where the dock would be. Painted on `body` rather than a fixed
+   `::before` at `z-index: -1`, because that pattern needs the whole ancestor
+   chain free of stacking contexts and the first `opacity` added above it
+   swallows the layer silently. This page animates opacity on the route. */
+body {
+  margin: 0;
+  background: var(--ground);
+  background-image:
+    radial-gradient(ellipse 55% 40% at 10% -5%, color-mix(in srgb, var(--amber) 11%, transparent), transparent 70%),
+    repeating-linear-gradient(to right, transparent 0 31px, color-mix(in srgb, var(--line) 26%, transparent) 31px 32px),
+    repeating-linear-gradient(to bottom, transparent 0 31px, color-mix(in srgb, var(--line) 26%, transparent) 31px 32px);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:root[data-theme="light"] body {
+  background-image:
+    radial-gradient(ellipse 55% 40% at 10% -5%, color-mix(in srgb, var(--amber) 9%, transparent), transparent 70%),
+    repeating-linear-gradient(to right, transparent 0 31px, color-mix(in srgb, var(--line) 34%, transparent) 31px 32px),
+    repeating-linear-gradient(to bottom, transparent 0 31px, color-mix(in srgb, var(--line) 34%, transparent) 31px 32px);
+}
+
+/* ---------------------------------------------------------------- header */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem clamp(1rem, 4vw, 2.5rem);
+  background: color-mix(in srgb, var(--ground) 72%, transparent);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 var(--glass-edge);
+}
+.wordmark {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-decoration: none;
+}
+.wordmark .dim { color: var(--dim); }
+
+.topnav { display: flex; align-items: center; gap: 0.9rem; }
+.topnav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.topnav a:hover, .topnav a:focus-visible { color: var(--amber); }
+.ico { width: 1rem; height: 1rem; flex: none; fill: currentColor; }
+
+@media (max-width: 680px) {
+  .topnav a span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .topnav a { gap: 0; }
+  .ico { width: 1.15rem; height: 1.15rem; }
+}
+
+/* Inside the topbar, which already blurs. A backdrop-filter inside a
+   backdrop-filter samples the parent pane and comes out muddy, so these take
+   the fill and borrow the blur underneath. */
+.pill, .icon-btn {
+  font-family: var(--sans);
+  color: var(--dim);
+  background: var(--glass-thin);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 var(--glass-edge);
+  transition: color 0.15s, border-color 0.15s;
+}
+.pill { font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.7rem; }
+.icon-btn { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; padding: 0; border-radius: var(--r); }
+.pill:hover, .icon-btn:hover, .pill:focus-visible, .icon-btn:focus-visible { color: var(--amber); border-color: var(--amber); }
+.icon-btn svg { width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.icon-btn .moon { display: none; }
+:root[data-theme="light"] .icon-btn .moon { display: block; }
+:root[data-theme="light"] .icon-btn .sun { display: none; }
+
+/* ---------------------------------------------------------------- layout */
+
+.hero, .band {
+  max-width: var(--band);
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 5.5rem) clamp(1rem, 4vw, 2.5rem);
+}
+.band { border-top: 1px solid var(--line); }
+.hero { padding-top: clamp(3.5rem, 10vw, 7rem); }
+
+h2 {
+  margin: 0 0 0.9rem;
+  font-family: var(--mono);
+  font-size: clamp(1.5rem, 3.6vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+.eyebrow {
+  margin: 0 0 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.body { margin: 0 0 1.8rem; max-width: 62ch; }
+.caption { margin: 1rem 0 0; font-size: 0.86rem; color: var(--dim); max-width: 62ch; }
+
+.kicker {
+  margin: 0 0 1rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.hero-title {
+  margin: 0 0 1.3rem;
+  font-family: var(--mono);
+  font-size: clamp(1.9rem, 5.6vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+.hero-title em { font-style: normal; color: var(--amber); }
+.lede { margin: 0 0 2rem; max-width: 60ch; font-size: 1.05rem; color: var(--dim); }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem; }
+
+/* Two runs of racking with the walkway between them: the plan view in one mark. */
+.rule { position: relative; height: 20px; margin-top: 3.5rem; }
+.rule i { position: absolute; left: 0; right: 0; height: 2px; background: var(--line); }
+.rule i:nth-child(1) { top: 4px; }
+.rule i:nth-child(2) { top: 14px; }
+.rule::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 9px;
+  height: 2px;
+  background: repeating-linear-gradient(to right, var(--amber) 0 10px, transparent 10px 22px);
+}
+
+/* -------------------------------------------------------------- controls */
+
+.btn {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.6rem 1.1rem;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn:hover, .btn:focus-visible { border-color: var(--amber); color: var(--amber); }
+.btn-primary { background: var(--amber); border-color: var(--amber); color: var(--ground); }
+.btn-primary:hover, .btn-primary:focus-visible {
+  background: color-mix(in srgb, var(--amber) 84%, white);
+  border-color: transparent;
+  color: var(--ground);
+}
+
+.install {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--dim);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 0.55rem 0.8rem;
+  box-shadow: inset 0 1px 0 var(--glass-edge);
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.switch .track {
+  width: 2.3rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--ground) 55%, transparent);
+  position: relative;
+  transition: border-color 0.2s;
+}
+.switch .track::after {
+  content: "";
+  position: absolute;
+  top: 1px; left: 1px;
+  width: 0.85rem; height: 0.85rem;
+  border-radius: 50%;
+  background: var(--dim);
+  transition: transform 0.2s, background-color 0.2s;
+}
+.switch[aria-pressed="true"] { color: var(--amber); }
+.switch[aria-pressed="true"] .track { border-color: var(--amber); }
+.switch[aria-pressed="true"] .track::after { background: var(--amber); transform: translateX(1.15rem); }
+
+/* ---------------------------------------------------------------- scenes */
+
+.scene {
+  margin-top: 1.6rem;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 var(--glass-edge), 0 22px 50px -34px var(--shadow);
+}
+.scene-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+}
+.scene-bar .grow { flex: 1 1 auto; }
+
+.tally {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  color: var(--dim);
+}
+.tally b { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+.tally .good { color: var(--amber); }
+
+.floor-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+}
+@media (max-width: 620px) { .floor-wrap { grid-template-columns: 1fr; } }
+.floor-col { display: grid; gap: 0.5rem; min-width: 0; }
+.floor-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.floor { width: 100%; height: auto; display: block; }
+
+.heat-wrap { padding: 1rem; display: grid; gap: 0.8rem; justify-items: center; }
+.floor-wide { max-width: 34rem; }
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.legend .ramp {
+  width: 7rem;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: linear-gradient(to right, var(--heat-0), var(--heat-1), var(--heat-2), var(--heat-3), var(--heat-4));
+}
+
+/* ----------------------------------------------------------------- cards */
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 1rem;
+}
+.card {
+  margin: 0;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1.2rem;
+  box-shadow: inset 0 1px 0 var(--glass-edge), 0 18px 40px -30px var(--shadow);
+}
+.card h3 { margin: 0 0 0.5rem; font-family: var(--mono); font-size: 0.95rem; letter-spacing: -0.01em; }
+.card p { margin: 0; font-size: 0.88rem; color: var(--dim); }
+
+/* No one-sided accent bar: it is the stock admonition from every docs theme,
+   and against glass a hard stripe on a blurred edge reads as a rendering
+   fault. The kind is carried by tinting the whole border and the heading. */
+.note {
+  margin-top: 1.6rem;
+  padding: 1.1rem 1.2rem;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid color-mix(in srgb, var(--amber) 35%, var(--line));
+  border-radius: var(--r);
+  box-shadow: inset 0 1px 0 var(--glass-edge), 0 18px 40px -30px var(--shadow);
+}
+.note strong { display: block; margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--amber); }
+.note p { margin: 0; font-size: 0.9rem; color: var(--dim); max-width: 62ch; }
+
+/* ---------------------------------------------------------------- footer */
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.6rem 1rem 2.2rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+.foot .sep { opacity: 0.5; }
+.foot a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--line); }
+.foot a:hover, .foot a:focus-visible { color: var(--amber); border-bottom-color: var(--amber); }
+
+/* ------------------------------------------------------------------ a11y */
+
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Glass is a readability cost somebody may have already told their machine
+   they cannot pay. Every panel goes solid and every blur comes off, with no
+   reflow because the fills are the same colours at full strength. */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass: var(--surface); --glass-thin: var(--surface); --glass-edge: transparent; }
+  .topbar, .card, .note, .install, .scene, .pill, .icon-btn {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .topbar { background: var(--ground); }
+  body { background-image: none; }
+}

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title data-i18n="meta.title">slotting · the picker walks one route, not many</title>
+<meta name="description" content="Ranking SKUs by pick frequency optimises the sum of distances. A picker walks one route per order. Watch the difference on a warehouse floor, in English and German." />
+<meta name="theme-color" content="#1C1A17" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./style.css" />
+<script>
+  // Before first paint: no theme flash, no language flash. Inline on purpose.
+  (function () {
+    var p = "slotting", t = null, l = null;
+    try { t = localStorage.getItem(p + "-theme"); l = localStorage.getItem(p + "-lang"); } catch (e) {}
+    document.documentElement.dataset.theme =
+      t || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    document.documentElement.lang =
+      l || ((navigator.language || "en").toLowerCase().startsWith("de") ? "de" : "en");
+  })();
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="wordmark" href="#top">slot<span class="dim">ting</span></a>
+  <nav class="topnav">
+    <a href="https://github.com/ArsalanRC/slotting" target="_blank" rel="noopener">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.8.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg><span data-i18n="nav.source">Source</span>
+    </a>
+    <a href="https://arsalanrc.github.io" target="_blank" rel="noopener">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2c1.3 0 2.7 2.5 3.1 6H8.9C9.3 6.5 10.7 4 12 4zM4.3 10h3.3a24 24 0 0 0 0 4H4.3a8 8 0 0 1 0-4zm0 6h3.6c.5 2.3 1.3 4 2.1 4.9A8 8 0 0 1 4.3 16zm5.6 0h4.2c-.5 3.2-1.7 5-2.1 5s-1.6-1.8-2.1-5zm0-2a22 22 0 0 1 0-4h4.2a22 22 0 0 1 0 4H9.9zm6.2 6.9c.8-.9 1.6-2.6 2.1-4.9h3.6a8 8 0 0 1-5.7 4.9zM19.7 14h-3.3a24 24 0 0 0 0-4h3.3a8 8 0 0 1 0 4zm-.8-6h-3.6c-.5-2.3-1.3-4-2.1-4.9A8 8 0 0 1 18.9 8z"/></svg><span data-i18n="nav.portfolio">Portfolio</span>
+    </a>
+    <a href="https://www.linkedin.com/in/muhammad-arsalan-khadim-b87550259/" target="_blank" rel="noopener">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zm1.78 13.02H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg><span data-i18n="nav.linkedin">LinkedIn</span>
+    </a>
+    <button type="button" class="pill" id="lang-btn">Deutsch</button>
+    <button type="button" class="icon-btn" id="theme-btn" aria-label="Switch theme">
+      <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.4 12h2.4M19.2 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.9 6.9 0 0 0 11.1 11.1z"/></svg>
+    </button>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <p class="kicker" data-i18n="hero.kicker">Python 3.10+ · zero dependencies · a warehouse floor</p>
+    <h1 class="hero-title" data-i18n-html="hero.title"></h1>
+    <p class="lede" data-i18n="hero.lede"></p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://github.com/ArsalanRC/slotting" target="_blank" rel="noopener" data-i18n="hero.cta">Read the code</a>
+      <code class="install">pip install git+https://github.com/ArsalanRC/slotting.git</code>
+    </div>
+    <div class="rule" aria-hidden="true"><i></i><i></i></div>
+  </section>
+
+  <!-- ================================================== one route, not many -->
+  <section class="band">
+    <p class="eyebrow" data-i18n="route.eyebrow"></p>
+    <h2 data-i18n="route.title"></h2>
+    <p class="body" data-i18n="route.lede"></p>
+
+    <div class="scene">
+      <div class="scene-bar">
+        <button type="button" class="btn" id="route-play" data-i18n="route.play">Walk the order</button>
+        <span class="grow"></span>
+        <span class="tally" id="route-tally"></span>
+      </div>
+      <div class="floor-wrap">
+        <div class="floor-col">
+          <span class="floor-label" data-i18n="route.byFrequency">By pick frequency</span>
+          <svg id="floor-before" class="floor" role="img" aria-labelledby="fb-t"><title id="fb-t" data-i18n="route.byFrequency">By pick frequency</title></svg>
+        </div>
+        <div class="floor-col">
+          <span class="floor-label" data-i18n="route.optimised">Optimised</span>
+          <svg id="floor-after" class="floor" role="img" aria-labelledby="fa-t"><title id="fa-t" data-i18n="route.optimised">Optimised</title></svg>
+        </div>
+      </div>
+    </div>
+    <p class="caption" data-i18n="route.caption"></p>
+
+    <div class="note">
+      <strong data-i18n="route.noteTitle"></strong>
+      <p data-i18n="route.noteBody"></p>
+    </div>
+  </section>
+
+  <!-- ============================================================== heatmap -->
+  <section class="band">
+    <p class="eyebrow" data-i18n="heat.eyebrow"></p>
+    <h2 data-i18n="heat.title"></h2>
+    <p class="body" data-i18n="heat.lede"></p>
+
+    <div class="scene">
+      <div class="scene-bar">
+        <button type="button" class="switch" id="heat-toggle" aria-pressed="false">
+          <span class="track" aria-hidden="true"></span>
+          <span data-i18n="heat.switch">Show the optimised floor</span>
+        </button>
+        <span class="grow"></span>
+        <span class="tally" id="heat-tally"></span>
+      </div>
+      <div class="heat-wrap">
+        <svg id="heat" class="floor floor-wide" role="img" aria-labelledby="h-t"><title id="h-t" data-i18n="heat.title">Pick density across the floor</title></svg>
+        <div class="legend">
+          <span data-i18n="heat.cold">quiet</span>
+          <i class="ramp" aria-hidden="true"></i>
+          <span data-i18n="heat.hot">busy</span>
+        </div>
+      </div>
+    </div>
+    <p class="caption" data-i18n="heat.caption"></p>
+  </section>
+
+  <!-- ============================================================ the limits -->
+  <section class="band">
+    <p class="eyebrow" data-i18n="limits.eyebrow"></p>
+    <h2 data-i18n="limits.title"></h2>
+    <div class="split">
+      <div class="card">
+        <h3 data-i18n="limits.c1t"></h3>
+        <p data-i18n="limits.c1b"></p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="limits.c2t"></h3>
+        <p data-i18n="limits.c2b"></p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="limits.c3t"></h3>
+        <p data-i18n="limits.c3b"></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <span data-i18n="foot.by">Built by Arsalan Khadim</span>
+  <span class="sep">·</span>
+  <a href="https://arsalanrc.github.io" target="_blank" rel="noopener">Portfolio</a>
+  <span class="sep">·</span>
+  <a href="https://www.linkedin.com/in/muhammad-arsalan-khadim-b87550259/" target="_blank" rel="noopener">LinkedIn</a>
+  <span class="sep">·</span>
+  <a href="https://github.com/ArsalanRC/slotting" target="_blank" rel="noopener">GitHub</a>
+</footer>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>
